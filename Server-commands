@@ -1,3 +1,6 @@
+#pre-requisites: T2.large with 25GB storage along with all traffic access.
+
+
 sudo -i
 yum install docker -y && systemctl start docker
 yum install java-17-amazon-corretto -y
