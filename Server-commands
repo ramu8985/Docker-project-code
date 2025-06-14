@@ -1,0 +1,17 @@
+sudo -i
+yum install docker -y && systemctl start docker
+yum install java-17-amazon-corretto -y
+#install jenkins from jennkins.io official document
+sudo wget -O /etc/yum.repos.d/jenkins.repo\
+https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+yum install jenkins -y && systemctl start jenkins
+systemctl status jenkins
+yum install git -y
+git --version
+docker version
+#copy pub ip address with 8080 port number
+
+#Sonarimage to access sonar gui
+docker run -itd --name sonar -p 9000:9000 sonarqube:lts-community
+#copy pub id with 9000 port number and user name and password is "admin"
