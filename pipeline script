@@ -1,0 +1,73 @@
+pipeline{
+    agent any
+    tools{
+        jdk "jdk17"
+        nodejs "nodejs"
+    }
+    environment{
+        SCANNER_HOME=tool "mysonar"
+    }
+    stages{
+        stage("clean workspace"){
+            steps{
+                cleanWs()
+            }
+        }
+        stage("code"){
+            steps{
+                git "https://github.com/ramu8985/Zomato-Project.git"
+            }
+        }
+        stage("CQA"){
+            steps{
+                withSonarQubeEnv("mysonar") {
+                 sh """$SCANNER_HOME/bin/sonar-scanner \
+                 -Dsonar.projectName=zomato \
+                 -Dsonar.projectKey=zomato"""
+
+                }
+            }
+        }
+        stage("build"){
+            steps{
+                sh "npm install"
+            }
+        }
+        stage("owasp"){
+            steps{
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit -disableNodeAudit', odcInstallation: 'DP-check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        stage("DockerImageBuild"){
+            steps{
+                sh "docker build -t ramugunja/projectzom:zomato ."
+            }
+        }
+        stage("Trivyfilesystem"){
+            steps{
+                sh "trivy fs .> trivyfs.txt"
+            }
+        }
+        stage("Imagescan"){
+            steps{
+                sh "trivy image ramugunja/projectzom:zomato"
+            }
+        }
+        stage("Dockerpushimage"){
+            steps{
+                script{
+                    withDockerRegistry(credentialsId: 'dockerhubdetails') {
+                    sh "docker push ramugunja/projectzom:zomato"
+                     }
+                }
+            }
+        }
+            stage("container"){
+                steps{
+                    sh "docker run -itd --name cont1 -p 3000:3000 ramugunja/projectzom:zomato"
+                    }
+            
+        }
+    }
+}
