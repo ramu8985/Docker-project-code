@@ -16,5 +16,6 @@ docker version
 #copy pub ip address with 8080 port number
 
 #Sonarimage to access sonar gui
+chmod 777 ///var/run/docker.sock #command may be not correct
 docker run -itd --name sonar -p 9000:9000 sonarqube:lts-community
 #copy pub id with 9000 port number and user name and password is "admin"
